@@ -2,6 +2,22 @@
 <html>
 <head>
 	<title>Minecraft Stronghold Triangulator</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Triangulate (locate) your Minecraft strongholds using Eye of Ender, F3+C (as of 1.13) and this easy to use web based tool.">
+  <meta name="keywords" content="Minecraft,Stronghold,Eye of Ender,Locate,Find,F3 C,F3+C,Triangulate,Triangulation">
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-72581362-2', 'auto');
+		ga('send', 'pageview');
+	</script>
+	<!-- End Google Analytics -->
+
+	
 	<script src='/common-lib/core/core.js'></script>
 	<script src='/common-lib/core/observable.js'></script>
 	<script src='js-lib/jquery-3.3.1.min.js'></script>
@@ -84,6 +100,7 @@
 			display:block;
 			font-size: .8em;
 			resize: vertical;
+      overflow-y: scroll;
 		}
 		
 		.pos{
@@ -136,7 +153,7 @@
 </div>
 <div id='rightbar'>
 	<label for='trig_input'>Triangulation Inputs</label><br />
-	<div class='input-caption'>One entry per line of: x z facing or simply press F3+C in minecarft and paste the tp command here.</div>
+	<div class='input-caption'>For instructions see the <a href='https://github.com/ens-gijs/minecraft-stronghold-locator/blob/gh-pages/README.md' target='_blank'>Readme</a> on GitHub.</div>
 	<textarea id='trig_input' rows='20'>
 #SteelBlue
 7554 -2459 146.8
@@ -144,16 +161,17 @@
 7423 -3108 134.8
 
 #Blue
-6901.53 -4020.18 77.5
-6763.79 -4159.56 402.45
+6564 ~ -3947
 
 #DarkOrchid
-6568.38 -3944.44
+/execute in overworld run tp @s -8839.15 69.00 -4709.39 115.29 -29.79
+/execute in overworld run tp @s -9237.95 90.00 -5091.29 -1334.01 -31.06
 
-#Lime
-6564.34 -3947.45
+#Magenta
+-1284 ~ -673 N
 
 
+-- More Sample Colors
 #SteelBlue
 #Blue
 #DarkOrchid
@@ -162,7 +180,6 @@
 #Orange
 #DeepPink
 #SlateBlue
-
 #Lime
 </textarea>
 <a href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a><br />
@@ -508,16 +525,26 @@
 			$('#nether_pos').text(f(p.x/8,hi_perc) + ', ' + f(p.y/8,hi_perc));
 		});
 		canvas.mousedblclick_event.subscribe({}, function(p, e){
+		  let world;
 		  if( e.altKey ) {
+			  world = 'Nether';
 				var loc = (p.x/8|0) + ' ~ ' + (p.y/8|0) + ' N';
 			} else {
+			  world = 'Overworld';
 				var loc = (p.x|0) + ' ~ ' + (p.y|0);
 			}
-			putToClipboard(loc); 
+			putToClipboard(loc);
+			ga('send', {
+				hitType: 'event',
+				eventCategory: 'Clipboard',
+				eventAction: 'Copy ' + world + ' Coords'
+			});
 			//console.log(loc);
 		});
 		
+		var first_draw = true;
 		$('#trig_input').keyup(function(){
+		  var last_ops = JSON.stringify(user_ops);
 		  user_ops = [];
 			var input_text = $(this).val();
 			putToLocalStorage('trig_input', input_text);
@@ -545,7 +572,9 @@
 				function isNumeric(i){
 					return !!float_pattern.exec(tokens[i]);
 				}
-				if(line[0] == '#') {
+				if(line.startsWith('--')){
+				  // comment
+				} else if(line[0] == '#') {
 				  active_color = line.substr(1).trim() || 'gray';
 				} else if(tokens[0] == '/tp' && tokens.length == 7) {
 					var words = {
@@ -578,17 +607,21 @@
 								active_color
 							));
 						}
-					} else if(tokens.length == 3) {
+					} else if(tokens.length == 3 || tokens.length == 4) {
+						if(tokens[3] == 'N' || tokens[3] == 'n'){
+							dimension == 'the_nether';
+							dimension_scale = 8;
+						}
 						if(tokens[1] == '~' && isNumeric(0) && isNumeric(2)){
 							user_ops.push(new OpDrawPoint(
-								parseFloat(tokens[0]),
-								parseFloat(tokens[2]),
+								parseFloat(tokens[0]) * dimension_scale,
+								parseFloat(tokens[2]) * dimension_scale,
 								active_color
 							));
 						} else if(isNumeric(0) && isNumeric(1) && isNumeric(2)) {
 							user_ops.push(new OpDrawRay(
-								parseFloat(tokens[0]),
-								parseFloat(tokens[1]),
+								parseFloat(tokens[0]) * dimension_scale,
+								parseFloat(tokens[1]) * dimension_scale,
 								parseFloat(tokens[2]),
 								active_color
 							));
@@ -597,6 +630,19 @@
 				}
 			}
 			canvas.redraw();
+			if(!first_draw){
+				var this_ops = JSON.stringify(user_ops);
+				if(last_ops != this_ops){
+					ga('send', {
+						hitType: 'event',
+						eventCategory: 'User Input',
+						eventAction: 'Changed',
+						eventValue: user_ops.length
+					});
+				}
+			} else {
+				first_draw = false;
+			}
 		}).keyup();
 	});
 	
