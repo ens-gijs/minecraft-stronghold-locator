@@ -153,7 +153,7 @@
 </div>
 <div id='rightbar'>
 	<label for='trig_input'>Triangulation Inputs</label><br />
-	<div class='input-caption'>For instructions see the <a href='https://github.com/ens-gijs/minecraft-stronghold-locator/blob/gh-pages/README.md' target='_blank'>Readme</a> on GitHub.</div>
+	<div class='input-caption'>For instructions see the <a id='readme_link' href='https://github.com/ens-gijs/minecraft-stronghold-locator/blob/gh-pages/README.md' target='_blank'>Readme</a> on GitHub.</div>
 	<textarea id='trig_input' rows='20'>
 #SteelBlue
 7554 -2459 146.8
@@ -182,7 +182,7 @@
 #SlateBlue
 #Lime
 </textarea>
-<a href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a><br />
+<a id='web_color_link' href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a><br />
 <!--
 #blue
 -413  12  88.88
@@ -484,6 +484,21 @@
 		if(saved_transform)
 		  canvas.setTransform(saved_transform);
 		draw();
+		
+		$('#readme_link').click(function(){
+			ga('send', {
+				hitType: 'event',
+				eventCategory: 'Feature',
+				eventAction: 'View Readme'
+			});
+		});
+		$('#web_color_link').click(function(){
+			ga('send', {
+				hitType: 'event',
+				eventCategory: 'Feature',
+				eventAction: 'View Web Colors'
+			});
+		});
 		
 		function numfmt(v,hi_perc){
 			var s = '';
