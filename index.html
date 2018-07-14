@@ -127,6 +127,10 @@
 		.draw-scale{
 			float:right;
 		}
+		
+		#upvote_touch{
+			font-size: 0.7em;
+		}
 
 	</style>
 </head>
@@ -153,7 +157,10 @@
 </div>
 <div id='rightbar'>
 	<label for='trig_input'>Triangulation Inputs</label><br />
-	<div class='input-caption'>For instructions see the <a id='readme_link' href='https://github.com/ens-gijs/minecraft-stronghold-locator/blob/gh-pages/README.md' target='_blank'>Readme</a> on GitHub.</div>
+	<div class='input-caption'>For instructions see the <a id='readme_link' href='https://github.com/ens-gijs/minecraft-stronghold-locator/blob/gh-pages/README.md' target='_blank'>Readme</a> on GitHub.
+		<div id='upvote_touch'>This site does not support Mobile Devices / Touch.<br />
+		Upvote <a href='https://github.com/ens-gijs/minecraft-stronghold-locator/issues/1' target='_blank'>this issue</a> if you would like to see support added.</div>
+	</div>
 	<textarea id='trig_input' rows='20'>
 #SteelBlue
 7554 -2459 146.8
@@ -499,6 +506,16 @@
 				eventAction: 'View Web Colors'
 			});
 		});
+		$('#upvote_touch a').click(function(){
+			ga('send', {
+				hitType: 'event',
+				eventCategory: 'Feature',
+				eventAction: 'Upvote Touch Issue',
+				eventValue: 1
+			});
+		});
+		
+		
 		
 		function numfmt(v,hi_perc){
 			var s = '';
