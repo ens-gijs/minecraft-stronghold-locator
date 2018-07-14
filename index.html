@@ -132,6 +132,22 @@
 			font-size: 0.7em;
 		}
 
+		#reset_view{
+			background: linear-gradient(#d8d8d8, #bfbfbf 42%, #d8d8d8 75%);
+			font-size: .8em;
+			color: #fefefe;
+			padding: 0 .5em;
+			border-radius: .5em;
+			text-shadow: 0 1px 2px black;
+			box-shadow: inset 0 2px 2px #999;
+			cursor: pointer;
+		  float: right;
+			margin: .2em;
+		}
+
+		#reset_view:hover{
+			box-shadow: inset 0 2px 2px white, inset 0 -2.5px 2px white;
+		}
 	</style>
 </head>
 <body>
@@ -189,7 +205,8 @@
 #SlateBlue
 #Lime
 </textarea>
-<a id='web_color_link' href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a><br />
+<a id='web_color_link' href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a>
+<span id='reset_view'>Reset View</span>
 <!--
 #blue
 -413  12  88.88
@@ -487,10 +504,6 @@
 				max_scale: 128
 			}
 		});
-		var saved_transform = getFromLocalStorage('view_transform');
-		if(saved_transform)
-		  canvas.setTransform(saved_transform);
-		draw();
 		
 		$('#readme_link').click(function(){
 			ga('send', {
@@ -512,6 +525,14 @@
 				eventCategory: 'Feature',
 				eventAction: 'Upvote Touch Issue',
 				eventValue: 1
+			});
+		});
+		$('#reset_view').click(function(){
+		  canvas.resetTransforms(true);
+			ga('send', {
+				hitType: 'event',
+				eventCategory: 'Map Action',
+				eventAction: 'Reset View'
 			});
 		});
 		
@@ -573,6 +594,13 @@
 			});
 			//console.log(loc);
 		});
+		
+		
+		var saved_transform = getFromLocalStorage('view_transform');
+		if(saved_transform)
+		  canvas.setTransform(saved_transform);
+		draw();
+		canvas.scale_changed_event.trigger(canvas.getScale());
 		
 		var first_draw = true;
 		$('#trig_input').keyup(function(){
