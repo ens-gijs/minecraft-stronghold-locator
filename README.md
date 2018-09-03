@@ -38,15 +38,21 @@ Lines beginning with -\- (two dashes) are ignored and can be used as comments.
 ```
 -- This line would be ignored.
 ```
+### Annotations
+A line beginning with !\- will set the annotation of all following points until either a new annotation is set or until a blank line. Annotations will be shown in the map above the rendered point once zoomed sufficiently in.
+```
+!- Some Short Description
+```
 ### Points
 Points can be entered in the following ways.
 ```
 X Z
 X ~ Z
+/tp X Y Z
 ```
-_Do NOT include the Y coord, you may use ~ in place of a Y value._
+_Do NOT include the Y coord, unless using the /tp format, you may use ~ in place of a Y value._
 
-In Minecraft (1.13+) press **F3+C** _(Press C while holding F3 then release)_ while  looking *STRAIT DOWN* and paste the TP command into the editor.
+In Minecraft (1.13+) press **F3+C** _(Press C while holding F3 then release)_ while looking *STRAIT DOWN* and paste the TP command into the editor.
 ```
 /execute in overworld run tp @s -8839.15 69.00 -4709.39 115.29 90.00
 ```
