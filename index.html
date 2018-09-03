@@ -230,6 +230,8 @@
 <script>
 
   const float_pattern = /^[-+]?(?:\d+(?:[.](?:\d*)?)?|[.]\d+)$/;
+	// Controls the length of the ray line (has no affect on ray-cones)
+	var LONG_RAY_LENGTH = 25000;
   function putToClipboard(data){
 		$('#clipboard_buffer').text(data).select();
 		document.execCommand("copy");
@@ -294,19 +296,21 @@
 		x_axis.draw(canvas, axis_color);
 		y_axis.draw(canvas, axis_color);
 		
-		var pxa, pxb, pya, pyb, col;
-		
-		for(var i = tick_a_step; i <= axis_reach; i += tick_a_step){
-		  col = i % tick_b_step === 0 ? tick_b_color : tick_a_color;
-			canvas.lineWidth = i % tick_b_step === 0 ? tick_b_weight : tick_a_weight;
-			pxa = new ross.drawing.LineSegment(i, -axis_reach, i, axis_reach);
-			pxb = new ross.drawing.LineSegment(-i, -axis_reach, -i, axis_reach);
-			pya = new ross.drawing.LineSegment(-axis_reach, i, axis_reach, i);
-			pyb = new ross.drawing.LineSegment(-axis_reach, -i, axis_reach, -i);
-			pxa.draw(canvas, col);
-			pxb.draw(canvas, col);
-			pya.draw(canvas, col);
-			pyb.draw(canvas, col);
+		if(canvas.getScale() > 1/90){
+			var pxa, pxb, pya, pyb, col;
+			let tick_step = canvas.getScale() > 0.02 ? tick_a_step : tick_b_step;
+			for(var i = tick_step; i <= axis_reach; i += tick_step){
+				col = i % tick_b_step === 0 ? tick_b_color : tick_a_color;
+				canvas.lineWidth = i % tick_b_step === 0 ? tick_b_weight : tick_a_weight;
+				pxa = new ross.drawing.LineSegment(i, -axis_reach, i, axis_reach);
+				pxb = new ross.drawing.LineSegment(-i, -axis_reach, -i, axis_reach);
+				pya = new ross.drawing.LineSegment(-axis_reach, i, axis_reach, i);
+				pyb = new ross.drawing.LineSegment(-axis_reach, -i, axis_reach, -i);
+				pxa.draw(canvas, col);
+				pxb.draw(canvas, col);
+				pya.draw(canvas, col);
+				pyb.draw(canvas, col);
+			}
 		}
 		canvas.restore();
 	}
@@ -368,62 +372,84 @@
 		canvas.lineWidth = lw;
 		canvas.clip();
 		
-		var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
-		for(var x = xmin; x <= xmax; ++x) {
-			line.p1.x = line.p2.x = x;
-			line.draw(canvas, color);
-		}
-		line.p1.x = xmin;
-		line.p2.x = xmax;
-		for(var z = zmin; z <= zmax; ++z) {
-			line.p1.y = line.p2.y = z;
-			line.draw(canvas, color);
+		if(canvas.getScale() >= 1.0){
+			var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
+			for(var x = xmin; x <= xmax; ++x) {
+				line.p1.x = line.p2.x = x;
+				line.draw(canvas, color);
+			}
+			line.p1.x = xmin;
+			line.p2.x = xmax;
+			for(var z = zmin; z <= zmax; ++z) {
+				line.p1.y = line.p2.y = z;
+				line.draw(canvas, color);
+			}
+		} else {
+			canvas.fillStyle = color;
+			canvas.globalAlpha = 0.5;
+			canvas.fill();
 		}
 		canvas.restore();
 	}
 	
-	function OpDrawPoint(x, z, color){
+	function OpDrawPoint(x, z, color, handle){
 		this.point = new ross.drawing.Point(x, z);
 		this.color = color;
+		this.handle = handle;
 	}
 	OpDrawPoint.prototype = {
 		exec(){
 			this.point.draw(canvas, this.color, 50);
-			canvas.save();
-			canvas.globalAlpha = 0.33;
-			drawBlockGridCircle(this.point, 12, this.color);
-			canvas.globalAlpha = 1;
-			canvas.lineWidth = 2;
-			drawSingleBlock(this.point, this.color);
-			canvas.restore();
+			
+			if(canvas.getScale() >= 0.1) {
+				canvas.save();
+				canvas.globalAlpha = 0.33;
+				drawBlockGridCircle(this.point, 12, this.color);
+				canvas.globalAlpha = 1;
+				canvas.lineWidth = 2;
+				drawSingleBlock(this.point, this.color);
+				canvas.restore();
+				
+				if(this.handle && canvas.getScale() >= 0.2) {
+					canvas.save();
+					canvas.fillStyle = this.color;
+					canvas.font = '16px sans-serif';
+					canvas.textAlign = 'center';
+					canvas.fillText(this.handle, this.point.x, this.point.y - 75);
+					canvas.restore()
+				}
+			}
 			
 			var rad = this.point.distanceTo({x:0, y:0});
 			
-			for(var i = 0; i < stronghold_rings.length; ++ i) {
-				var ring = stronghold_rings[i];
-				if(rad > ring[0] - 20 && rad < ring[1] + 20){
-					var start = this.point.vectorFrom({x:0, y:0}).angleDeg;
-					var end = start + 359;
-					var stride = 360 / ring[2];
-					var line = new ross.drawing.LineSegment(ring[0], 0, ring[1], 0);
-					for(var j = 0; j < ring[2]; ++j) {
-						canvas.save();
-						canvas.globalAlpha = 0.15;
-						canvas.rotate( ross.drawing.radians(start + j * stride) );
-						line.draw(canvas, this.color);
-						canvas.restore();
+			if(rad < stronghold_rings[stronghold_rings.length-1][1]){
+				for(var i = 0; i < stronghold_rings.length; ++ i) {
+					var ring = stronghold_rings[i];
+					if(rad > ring[0] - 20 && rad < ring[1] + 20){
+						var start = this.point.vectorFrom({x:0, y:0}).angleDeg;
+						var end = start + 359;
+						var stride = 360 / ring[2];
+						var line = new ross.drawing.LineSegment(ring[0], 0, ring[1], 0);
+						for(var j = 0; j < ring[2]; ++j) {
+							canvas.save();
+							canvas.globalAlpha = 0.15;
+							canvas.rotate( ross.drawing.radians(start + j * stride) );
+							line.draw(canvas, this.color);
+							canvas.restore();
+						}
+						break;
 					}
-					break;
 				}
 			}
 		}
 	};
 	
-	function OpDrawRay(x, z, facing, color){
+	function OpDrawRay(x, z, facing, color, handle){
 	  this.ray = new ross.drawing.Ray(x, z, ross.drawing.radians(90 + facing));
 		this.dot = new ross.drawing.Arc(x, z, 0.2, 0, Math.PI * 2);
 		this.ring = new ross.drawing.Arc(x, z, 4, 0, Math.PI * 2);
 		this.color = color;
+		this.handle = handle;
 	}
 	OpDrawRay.prototype = {
 	  _draw_cone(angle, alpha, cone_dist){
@@ -458,7 +484,7 @@
 			canvas.save();
 			canvas.lineWidth = 2;
 			canvas.globalAlpha = 0.2;
-			this.ray.draw(canvas, this.color, 25000);
+			this.ray.draw(canvas, this.color, LONG_RAY_LENGTH);
 			//this.ring.draw(canvas, this.color);
 			
 			canvas.globalAlpha = 0.33;
@@ -610,10 +636,12 @@
 			putToLocalStorage('trig_input', input_text);
 			var m;
 			var active_color = 'gray';
-			var lines = input_text.split(/\s*$\s*/m);
+			// var lines = input_text.split(/\s*$\s*/m);
+			var lines = input_text.split(/$/m);
+			var handle = null;
 			
 			for(var i = 0; i < lines.length; ++ i) {
-				var line = lines[i];
+				var line = lines[i].trim();
 				var tokens = line.split(/\s+/);
 				var dimension = 'overworld';
 				var dimension_scale = 1;
@@ -632,31 +660,55 @@
 				function isNumeric(i){
 					return !!float_pattern.exec(tokens[i]);
 				}
-				if(line.startsWith('--')){
+				if(!line){
+					handle = null;
+				} else if(line.startsWith('--')){
 				  // comment
+				} else if(line.startsWith('!-')){
+				  // handle
+					handle = line.substr(2).trim();
 				} else if(line[0] == '#') {
 				  active_color = line.substr(1).trim() || 'gray';
-				} else if(tokens[0] == '/tp' && tokens.length == 7) {
-					var words = {
-						x: parseFloat(tokens[2]) * dimension_scale,
-						y: parseFloat(tokens[3]),
-						z: parseFloat(tokens[4]) * dimension_scale,
-						f: parseFloat(tokens[5]),
-						t: parseFloat(tokens[6]),
-					};
-					if(words.t >= 89){  // looking down
+				} else if(tokens[0] == '/tp') {
+  				if(tokens.length == 7) {
+						var words = {
+							x: parseFloat(tokens[2]) * dimension_scale,
+							y: parseFloat(tokens[3]),
+							z: parseFloat(tokens[4]) * dimension_scale,
+							f: parseFloat(tokens[5]),
+							t: parseFloat(tokens[6]),
+						};
+						if(words.t >= 89){  // looking down
+							user_ops.push(new OpDrawPoint(
+								words.x,
+								words.z,
+								active_color,
+								handle
+							));
+						} else {
+							user_ops.push(new OpDrawRay(
+								words.x,
+								words.z,
+								words.f,
+								active_color,
+								handle
+							));
+						}
+					} else if(tokens.length >= 4) {
+					  let kk = isNumeric(1) ? 0 : 1;
+						var words = {
+							x: parseFloat(tokens[1+kk]) * dimension_scale,
+							y: (isNumeric(+kk) ? parseFloat(tokens[2+kk]) : null),
+							z: parseFloat(tokens[3+kk]) * dimension_scale,
+						};
 						user_ops.push(new OpDrawPoint(
 							words.x,
 							words.z,
-							active_color
+							active_color,
+								handle
 						));
 					} else {
-						user_ops.push(new OpDrawRay(
-							words.x,
-							words.z,
-							words.f,
-							active_color
-						));
+						console.log(tokens);
 					}
 				} else {
 					if(tokens.length == 2) {
@@ -664,7 +716,8 @@
 							user_ops.push(new OpDrawPoint(
 								parseFloat(tokens[0]),
 								parseFloat(tokens[1]),
-								active_color
+								active_color,
+								handle
 							));
 						}
 					} else if(tokens.length == 3 || tokens.length == 4) {
@@ -676,14 +729,16 @@
 							user_ops.push(new OpDrawPoint(
 								parseFloat(tokens[0]) * dimension_scale,
 								parseFloat(tokens[2]) * dimension_scale,
-								active_color
+								active_color,
+								handle
 							));
 						} else if(isNumeric(0) && isNumeric(1) && isNumeric(2)) {
 							user_ops.push(new OpDrawRay(
 								parseFloat(tokens[0]) * dimension_scale,
 								parseFloat(tokens[1]) * dimension_scale,
 								parseFloat(tokens[2]),
-								active_color
+								active_color,
+								handle
 							));
 						}
 					}
