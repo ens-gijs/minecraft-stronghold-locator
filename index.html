@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Minecraft Stronghold Triangulator</title>
+  <title>Minecraft Stronghold Triangulator</title>
   <meta charset="UTF-8">
   <meta name="description" content="Triangulate (locate) your Minecraft strongholds using Eye of Ender, F3+C (as of 1.13) and this easy to use web based tool.">
   <meta name="keywords" content="Minecraft,Stronghold,Eye of Ender,Locate,Find,F3 C,F3+C,Triangulate,Triangulation">
-	<!-- Google Analytics -->
-	<script>
-		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  <!-- Google Analytics -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-		ga('create', 'UA-72581362-2', 'auto');
-		ga('send', 'pageview');
-	</script>
-	<!-- End Google Analytics -->
+    ga('create', 'UA-72581362-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <!-- End Google Analytics -->
 
-	
-	<script src='/common-lib/core/core.js'></script>
-	<script src='/common-lib/core/observable.js'></script>
-	<script src='js-lib/jquery-3.3.1.min.js'></script>
-	<script src='/common-lib/math/numeric-1.2.6.min.js'></script>
-	<script src='/common-lib/math/matrix.js'></script>
-	<script src='/common-lib/math/vector.js'></script>
-	<script src='/common-lib/drawing/drawing.js'></script>
-	<script src='/common-lib/drawing/coordinate_plane.js'></script>
-	<script src='/common-lib/drawing/canvas_helpers.js'></script>
-	<style>
-	  html, body{
-		  margin:0;
-			padding:0;
-			display: block;
-			border: 0;
-			height: 100%
-		}
-		
-		body{
-			display: grid;
-			grid-template-columns: auto 300px;
-			color: #333;
-			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-		}
-		
-		#rightbar{
-			background-color: #f0f0f0;
-			padding: 5px;
-			border-left: 1px solid lightgray;
-			box-shadow: -1px 0 2px #0002;
-			position: relative;
-		}
-		
-		#rightbar label{
-			font-weight:bold;
-		}
-		
-		#rightbar .input-caption{
-			font-size: 0.8em;
-		}
-		#rightbar a{
-			font-size: 0.8em;
-		}
+  
+  <script src='/common-lib/core/core.js'></script>
+  <script src='/common-lib/core/observable.js'></script>
+  <script src='js-lib/jquery-3.3.1.min.js'></script>
+  <script src='/common-lib/math/numeric-1.2.6.min.js'></script>
+  <script src='/common-lib/math/matrix.js'></script>
+  <script src='/common-lib/math/vector.js'></script>
+  <script src='/common-lib/drawing/drawing.js'></script>
+  <script src='/common-lib/drawing/coordinate_plane.js'></script>
+  <script src='/common-lib/drawing/canvas_helpers.js'></script>
+  <style>
+    html, body{
+      margin:0;
+      padding:0;
+      display: block;
+      border: 0;
+      height: 100%
+    }
+    
+    body{
+      display: grid;
+      grid-template-columns: auto 300px;
+      color: #333;
+      font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    }
+    
+    #rightbar{
+      background-color: #f0f0f0;
+      padding: 5px;
+      border-left: 1px solid lightgray;
+      box-shadow: -1px 0 2px #0002;
+      position: relative;
+    }
+    
+    #rightbar label{
+      font-weight:bold;
+    }
+    
+    #rightbar .input-caption{
+      font-size: 0.8em;
+    }
+    #rightbar a{
+      font-size: 0.8em;
+    }
     
     #rightbar .inputs{
       min-height: 100%;
@@ -68,116 +68,116 @@
       grid-template-rows: auto 1fr auto;
       grid-template-columns: 100%;
     }
-		
-		.canvas-container{
-			min-width: 400px;
-			min-height: 200px;
-			position:relative;
-			height: 100vh;
-			width: 100%;
-		}
-		
-		.canvas-container > * {
-		  position:absolute;
-			top:0;
-			left:0;
-			bottom:0;
-			right:0;
-			display: block;
-			height: 100%;
-			width: 100%;
-		}
-		
-		.canvas-overlay {
-			pointer-events: none
-		}
-		
-		.overlay-footer{
-		  position:absolute;
-			bottom: 0;
-			padding: 8px;
-			vertical-align: bottom;
-			box-sizing: border-box;
-			width: 100%;
-		}
-		
-		#trig_input{
-			box-sizing: border-box;
-			width: 100%;
+    
+    .canvas-container{
+      min-width: 400px;
+      min-height: 200px;
+      position:relative;
+      height: 100vh;
+      width: 100%;
+    }
+    
+    .canvas-container > * {
+      position:absolute;
+      top:0;
+      left:0;
+      bottom:0;
+      right:0;
+      display: block;
       height: 100%;
-			display:block;
-			font-size: .8em;
-			resize: none;
+      width: 100%;
+    }
+    
+    .canvas-overlay {
+      pointer-events: none
+    }
+    
+    .overlay-footer{
+      position:absolute;
+      bottom: 0;
+      padding: 8px;
+      vertical-align: bottom;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    
+    #trig_input{
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      display:block;
+      font-size: .8em;
+      resize: none;
       overflow-y: scroll;
-		}
-		
-		.pos{
-			padding: .25em .5em;
-			background-color: floralwhite;
-			border-radius: 1em;
-			box-shadow: 0 1px 2px #0003;
-			display:inline-block;
-			color: #795548;
-		}
-		
-		.pos label{
-			text-align: center;
-			width: 100%;
-			display: inline-block;
-			font-size: .7em;
-			border-bottom: 1px solid #0002;
-		}
-		
-		.pos .coords{
-			font-size: .9em;
-		}
-		
-		.draw-scale{
-			float:right;
-		}
-		
-		#upvote_touch{
-			font-size: 0.7em;
-		}
+    }
+    
+    .pos{
+      padding: .25em .5em;
+      background-color: floralwhite;
+      border-radius: 1em;
+      box-shadow: 0 1px 2px #0003;
+      display:inline-block;
+      color: #795548;
+    }
+    
+    .pos label{
+      text-align: center;
+      width: 100%;
+      display: inline-block;
+      font-size: .7em;
+      border-bottom: 1px solid #0002;
+    }
+    
+    .pos .coords{
+      font-size: .9em;
+    }
+    
+    .draw-scale{
+      float:right;
+    }
+    
+    #upvote_touch{
+      font-size: 0.7em;
+    }
 
-		#reset_view{
-			background: linear-gradient(#d8d8d8, #bfbfbf 42%, #d8d8d8 75%);
-			font-size: .8em;
-			color: #fefefe;
-			padding: 0 .5em;
-			border-radius: .5em;
-			text-shadow: 0 1px 2px black;
-			box-shadow: inset 0 2px 2px #999;
-			cursor: pointer;
-		  float: right;
-			margin: .2em;
-		}
+    #reset_view{
+      background: linear-gradient(#d8d8d8, #bfbfbf 42%, #d8d8d8 75%);
+      font-size: .8em;
+      color: #fefefe;
+      padding: 0 .5em;
+      border-radius: .5em;
+      text-shadow: 0 1px 2px black;
+      box-shadow: inset 0 2px 2px #999;
+      cursor: pointer;
+      float: right;
+      margin: .2em;
+    }
 
-		#reset_view:hover{
-			box-shadow: inset 0 2px 2px white, inset 0 -2.5px 2px white;
-		}
-	</style>
+    #reset_view:hover{
+      box-shadow: inset 0 2px 2px white, inset 0 -2.5px 2px white;
+    }
+  </style>
 </head>
 <body>
 <div class='canvas-container'>
-	<canvas id='board'></canvas>
-	<div class='canvas-overlay'>
-	  <div style='overflow:hidden;width:1px;height:1px;left:0;bottom:0'><textarea id='clipboard_buffer' style='display:inline-block;color:white;font-size:1px'></textarea></div>
-	  <div class='overlay-footer'>
-			<span class='pos'>
-				<label for='overworld_pos'>overworld</label>
-				<div class='coords' id='overworld_pos'>????, ????</div>
-			</span>
-			<span class='pos'>
-				<label for='nether_pos'>nether</label>
-				<div class='coords' id='nether_pos'>????, ????</div>
-			</span>
-			<span class='pos draw-scale'>
-				<label for='zoom'>zoom</label>
-				<div class='coords' id='zoom'>??:??</div>
-			</span>
-		</div>
-	</div>
+  <canvas id='board'></canvas>
+  <div class='canvas-overlay'>
+    <div style='overflow:hidden;width:1px;height:1px;left:0;bottom:0'><textarea id='clipboard_buffer' style='display:inline-block;color:white;font-size:1px'></textarea></div>
+    <div class='overlay-footer'>
+      <span class='pos'>
+        <label for='overworld_pos'>overworld</label>
+        <div class='coords' id='overworld_pos'>????, ????</div>
+      </span>
+      <span class='pos'>
+        <label for='nether_pos'>nether</label>
+        <div class='coords' id='nether_pos'>????, ????</div>
+      </span>
+      <span class='pos draw-scale'>
+        <label for='zoom'>zoom</label>
+        <div class='coords' id='zoom'>??:??</div>
+      </span>
+    </div>
+  </div>
 </div>
 <div id='rightbar'>
   <div class='inputs'>
@@ -227,537 +227,537 @@
 <script>
 
   const float_pattern = /^[-+]?(?:\d+(?:[.](?:\d*)?)?|[.]\d+)$/;
-	// Controls the length of the ray line (has no affect on ray-cones)
-	var LONG_RAY_LENGTH = 25000;
+  // Controls the length of the ray line (has no affect on ray-cones)
+  var LONG_RAY_LENGTH = 25000;
   function putToClipboard(data){
-		$('#clipboard_buffer').text(data).select();
-		document.execCommand("copy");
-	}
-	var __LS_cache = {};
-	function putToLocalStorage(key, data){
-	  var s = JSON.stringify(data);
-		if(s != __LS_cache[key]) {
-			localStorage.setItem(key, s);
-			__LS_cache[key] = s;
-			//console.log('stored', key);
-		}
-	}
-	function getFromLocalStorage(key, default_value){
-		var s = localStorage.getItem(key);
-		if(!s) return default_value;
-		return JSON.parse(s);
-	}
-	
+    $('#clipboard_buffer').text(data).select();
+    document.execCommand("copy");
+  }
+  var __LS_cache = {};
+  function putToLocalStorage(key, data){
+    var s = JSON.stringify(data);
+    if(s != __LS_cache[key]) {
+      localStorage.setItem(key, s);
+      __LS_cache[key] = s;
+      //console.log('stored', key);
+    }
+  }
+  function getFromLocalStorage(key, default_value){
+    var s = localStorage.getItem(key);
+    if(!s) return default_value;
+    return JSON.parse(s);
+  }
+  
   var canvas;
-	var user_ops = [];
-	
-	const stronghold_rings = [
-	  // start, end, count
-		[1408, 2688, 3],
-		[4480, 5760, 6],
-		[7552, 8832, 10],
-		[10624, 11904, 15],
-		[13696, 14976, 21],
-		[16768, 18048, 28],
-		[19840, 21120, 36],
-		[22912, 24192, 9]
-	];
-	
-	function drawStrongholdRings(){
-		canvas.save();
-		canvas.fillStyle = '#8fbc8b20';
-		canvas.beginPath();
-		for(var i = 0; i < stronghold_rings.length; ++ i) {
-			var ring = stronghold_rings[i];
-			canvas.arc(0, 0, ring[1], 0, Math.PI * 2, false);
-			canvas.arc(0, 0, ring[0], 0, Math.PI * 2, true);
-		}
-		canvas.fill();
-		canvas.restore();
-	};
-	
-	function drawAxis(){
-		const axis_reach = 50000;  // 2**10 * 32;
-		const axis_color = '#80000022';
-		const tick_a_step = 100;  // 16;
-		const tick_b_step = tick_a_step *10;  // * 32
-		const tick_a_color  = '#00000008';
-		const tick_b_color = '#00008010';
-		const tick_a_weight = 0.5;
-		const tick_b_weight = 1;
-		
-		var x_axis = new ross.drawing.LineSegment(-axis_reach,0,axis_reach,0);
-		var y_axis = new ross.drawing.LineSegment(0,-axis_reach,0,axis_reach);
-		canvas.save();
-		canvas.lineWidth = 2;
-		x_axis.draw(canvas, axis_color);
-		y_axis.draw(canvas, axis_color);
-		
-		if(canvas.getScale() > 1/90){
-			var pxa, pxb, pya, pyb, col;
-			let tick_step = canvas.getScale() > 0.02 ? tick_a_step : tick_b_step;
-			for(var i = tick_step; i <= axis_reach; i += tick_step){
-				col = i % tick_b_step === 0 ? tick_b_color : tick_a_color;
-				canvas.lineWidth = i % tick_b_step === 0 ? tick_b_weight : tick_a_weight;
-				pxa = new ross.drawing.LineSegment(i, -axis_reach, i, axis_reach);
-				pxb = new ross.drawing.LineSegment(-i, -axis_reach, -i, axis_reach);
-				pya = new ross.drawing.LineSegment(-axis_reach, i, axis_reach, i);
-				pyb = new ross.drawing.LineSegment(-axis_reach, -i, axis_reach, -i);
-				pxa.draw(canvas, col);
-				pxb.draw(canvas, col);
-				pya.draw(canvas, col);
-				pyb.draw(canvas, col);
-			}
-		}
-		canvas.restore();
-	}
-	function getBlockCoord(p){
-		var x=p.x|0,z=p.y|0;
-		if(x!=p.x&&p.x<0)x--;
-		if(z!=p.y&&p.y<0)z--;
-		return new ross.drawing.Point(x,z);
-	}
-	function drawSingleBlock(p, color){
-		p = getBlockCoord(p);
-	  canvas.save();
-		canvas.beginPath()
-		canvas.rect(p.x, p.y, 1, 1);
-		canvas.strokeStyle = color;
-		canvas.stroke();
-		canvas.restore();
-	}
-	function drawBlockGrid(center_p, width, height, color){
-		var p = getBlockCoord(center_p);
-		width = width |0;
-		height = height |0;
-		
-		var xmin = p.x - (width / 2 |0);
-		var xmax = p.x + ((width + 1) / 2 |0);
-		var zmin = p.y - (height / 2 |0);
-		var zmax = p.y + ((height + 1) / 2 |0);
-		
-		var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
-		for(var x = xmin; x <= xmax; ++x) {
-			line.p1.x = line.p2.x = x;
-			line.draw(canvas, color);
-		}
-		line.p1.x = xmin;
-		line.p2.x = xmax;
-		for(var z = zmin; z <= zmax; ++z) {
-			line.p1.y = line.p2.y = z;
-			line.draw(canvas, color);
-		}
-	}
-	function drawBlockGridCircle(center_p, radius, color){
-		var p = getBlockCoord(center_p);
-		
-		var min_p = getBlockCoord({x:center_p.x - radius, y:center_p.y - radius});
-		var max_p = getBlockCoord({x:center_p.x + radius+1, y:center_p.y + radius+1});
-		
-		var xmin = min_p.x;
-		var xmax = max_p.x;
-		var zmin = min_p.y;
-		var zmax = max_p.y;
-		
-		canvas.save();
-		canvas.strokeStyle = color;
-		canvas.beginPath();
-		var lw = canvas.lineWidth;
-		canvas.lineWidth = 0.25;
-		canvas.arc(center_p.x, center_p.y, radius, 0, Math.PI * 2);
-		canvas.stroke();
-		canvas.lineWidth = lw;
-		canvas.clip();
-		
-		if(canvas.getScale() >= 1.0){
-			var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
-			for(var x = xmin; x <= xmax; ++x) {
-				line.p1.x = line.p2.x = x;
-				line.draw(canvas, color);
-			}
-			line.p1.x = xmin;
-			line.p2.x = xmax;
-			for(var z = zmin; z <= zmax; ++z) {
-				line.p1.y = line.p2.y = z;
-				line.draw(canvas, color);
-			}
-		} else {
-			canvas.fillStyle = color;
-			canvas.globalAlpha = 0.5;
-			canvas.fill();
-		}
-		canvas.restore();
-	}
-	
-	function OpDrawPoint(x, z, color, handle){
-		this.point = new ross.drawing.Point(x, z);
-		this.color = color;
-		this.handle = handle;
-	}
-	OpDrawPoint.prototype = {
-		exec(){
-			this.point.draw(canvas, this.color, 50);
-			
-			if(canvas.getScale() >= 0.1) {
-				canvas.save();
-				canvas.globalAlpha = 0.33;
-				drawBlockGridCircle(this.point, 12, this.color);
-				canvas.globalAlpha = 1;
-				canvas.lineWidth = 2;
-				drawSingleBlock(this.point, this.color);
-				canvas.restore();
-				
-				if(this.handle && canvas.getScale() >= 0.2) {
-					canvas.save();
-					canvas.fillStyle = this.color;
-					canvas.font = '16px sans-serif';
-					canvas.textAlign = 'center';
-					canvas.fillText(this.handle, this.point.x, this.point.y - 75);
-					canvas.restore()
-				}
-			}
-			
-			var rad = this.point.distanceTo({x:0, y:0});
-			
-			if(rad < stronghold_rings[stronghold_rings.length-1][1]){
-				for(var i = 0; i < stronghold_rings.length; ++ i) {
-					var ring = stronghold_rings[i];
-					if(rad > ring[0] - 20 && rad < ring[1] + 20){
-						var start = this.point.vectorFrom({x:0, y:0}).angleDeg;
-						var end = start + 359;
-						var stride = 360 / ring[2];
-						var line = new ross.drawing.LineSegment(ring[0], 0, ring[1], 0);
-						for(var j = 0; j < ring[2]; ++j) {
-							canvas.save();
-							canvas.globalAlpha = 0.15;
-							canvas.rotate( ross.drawing.radians(start + j * stride) );
-							line.draw(canvas, this.color);
-							canvas.restore();
-						}
-						break;
-					}
-				}
-			}
-		}
-	};
-	
-	function OpDrawRay(x, z, facing, color, handle){
-	  this.ray = new ross.drawing.Ray(x, z, ross.drawing.radians(90 + facing));
-		this.dot = new ross.drawing.Arc(x, z, 0.2, 0, Math.PI * 2);
-		this.ring = new ross.drawing.Arc(x, z, 4, 0, Math.PI * 2);
-		this.color = color;
-		this.handle = handle;
-	}
-	OpDrawRay.prototype = {
-	  _draw_cone(angle, alpha, cone_dist){
-			var na = new ross.drawing.Ray(this.ray);
-			var nb = new ross.drawing.Ray(this.ray);
-		
-			na.rotate(ross.drawing.radians(-angle/2));
-			nb.rotate(ross.drawing.radians(angle/2));
-			
-			cone_dist = cone_dist || 100000;
-			var cone = [
-				na.p1,
-				na.pointAtDistance(cone_dist),
-				nb.pointAtDistance(cone_dist)
-			];
-			
-			canvas.save();
-			canvas.fillStyle = this.color;
-						
-			canvas.globalAlpha = alpha || 0.1;
-			
-			canvas.beginPath();
-			canvas.moveTo(cone[0].x, cone[0].y);
-			canvas.lineTo(cone[1].x, cone[1].y);
-			canvas.lineTo(cone[2].x, cone[2].y);
-			canvas.closePath();
-			canvas.fill();
-			canvas.beginPath();
-			canvas.restore();
-		},
-		exec(){
-			canvas.save();
-			canvas.lineWidth = 2;
-			canvas.globalAlpha = 0.2;
-			this.ray.draw(canvas, this.color, LONG_RAY_LENGTH);
-			//this.ring.draw(canvas, this.color);
-			
-			canvas.globalAlpha = 0.33;
-			drawBlockGridCircle(this.dot.p1, 4, this.color);
-			canvas.globalAlpha = 1.0;
-		  canvas.beginPath();
-			canvas.lineWidth = 0.5;
-			canvas.fillStyle = this.color;
-			this.dot.drawPath(canvas);
-			canvas.fill();
-			
-			canvas.lineWidth = 2;
-			drawSingleBlock(this.ray.p1, this.color);
-			canvas.restore();
-			/*this._draw_cone(3, 0.05,  5000);
-			this._draw_cone(2, 0.075, 10000);
-			this._draw_cone(1, 0.10, 25000);
-			this._draw_cone(0.4, 0.25, 50000);*/
-			this._draw_cone(3, 0.05,  20000);
-			this._draw_cone(2, 0.075, 10000);
-			this._draw_cone(1, 0.10, 5000);
-			this._draw_cone(0.4, 0.25, 1000);
-		}
-	};
-	var draw = function(){
-		canvas.clear('#fcfcfc')
-		drawStrongholdRings();
-		drawAxis();
+  var user_ops = [];
+  
+  const stronghold_rings = [
+    // start, end, count
+    [1408, 2688, 3],
+    [4480, 5760, 6],
+    [7552, 8832, 10],
+    [10624, 11904, 15],
+    [13696, 14976, 21],
+    [16768, 18048, 28],
+    [19840, 21120, 36],
+    [22912, 24192, 9]
+  ];
+  
+  function drawStrongholdRings(){
+    canvas.save();
+    canvas.fillStyle = '#8fbc8b20';
+    canvas.beginPath();
+    for(var i = 0; i < stronghold_rings.length; ++ i) {
+      var ring = stronghold_rings[i];
+      canvas.arc(0, 0, ring[1], 0, Math.PI * 2, false);
+      canvas.arc(0, 0, ring[0], 0, Math.PI * 2, true);
+    }
+    canvas.fill();
+    canvas.restore();
+  };
+  
+  function drawAxis(){
+    const axis_reach = 50000;  // 2**10 * 32;
+    const axis_color = '#80000022';
+    const tick_a_step = 100;  // 16;
+    const tick_b_step = tick_a_step *10;  // * 32
+    const tick_a_color  = '#00000008';
+    const tick_b_color = '#00008010';
+    const tick_a_weight = 0.5;
+    const tick_b_weight = 1;
+    
+    var x_axis = new ross.drawing.LineSegment(-axis_reach,0,axis_reach,0);
+    var y_axis = new ross.drawing.LineSegment(0,-axis_reach,0,axis_reach);
+    canvas.save();
+    canvas.lineWidth = 2;
+    x_axis.draw(canvas, axis_color);
+    y_axis.draw(canvas, axis_color);
+    
+    if(canvas.getScale() > 1/90){
+      var pxa, pxb, pya, pyb, col;
+      let tick_step = canvas.getScale() > 0.02 ? tick_a_step : tick_b_step;
+      for(var i = tick_step; i <= axis_reach; i += tick_step){
+        col = i % tick_b_step === 0 ? tick_b_color : tick_a_color;
+        canvas.lineWidth = i % tick_b_step === 0 ? tick_b_weight : tick_a_weight;
+        pxa = new ross.drawing.LineSegment(i, -axis_reach, i, axis_reach);
+        pxb = new ross.drawing.LineSegment(-i, -axis_reach, -i, axis_reach);
+        pya = new ross.drawing.LineSegment(-axis_reach, i, axis_reach, i);
+        pyb = new ross.drawing.LineSegment(-axis_reach, -i, axis_reach, -i);
+        pxa.draw(canvas, col);
+        pxb.draw(canvas, col);
+        pya.draw(canvas, col);
+        pyb.draw(canvas, col);
+      }
+    }
+    canvas.restore();
+  }
+  function getBlockCoord(p){
+    var x=p.x|0,z=p.y|0;
+    if(x!=p.x&&p.x<0)x--;
+    if(z!=p.y&&p.y<0)z--;
+    return new ross.drawing.Point(x,z);
+  }
+  function drawSingleBlock(p, color){
+    p = getBlockCoord(p);
+    canvas.save();
+    canvas.beginPath()
+    canvas.rect(p.x, p.y, 1, 1);
+    canvas.strokeStyle = color;
+    canvas.stroke();
+    canvas.restore();
+  }
+  function drawBlockGrid(center_p, width, height, color){
+    var p = getBlockCoord(center_p);
+    width = width |0;
+    height = height |0;
+    
+    var xmin = p.x - (width / 2 |0);
+    var xmax = p.x + ((width + 1) / 2 |0);
+    var zmin = p.y - (height / 2 |0);
+    var zmax = p.y + ((height + 1) / 2 |0);
+    
+    var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
+    for(var x = xmin; x <= xmax; ++x) {
+      line.p1.x = line.p2.x = x;
+      line.draw(canvas, color);
+    }
+    line.p1.x = xmin;
+    line.p2.x = xmax;
+    for(var z = zmin; z <= zmax; ++z) {
+      line.p1.y = line.p2.y = z;
+      line.draw(canvas, color);
+    }
+  }
+  function drawBlockGridCircle(center_p, radius, color){
+    var p = getBlockCoord(center_p);
+    
+    var min_p = getBlockCoord({x:center_p.x - radius, y:center_p.y - radius});
+    var max_p = getBlockCoord({x:center_p.x + radius+1, y:center_p.y + radius+1});
+    
+    var xmin = min_p.x;
+    var xmax = max_p.x;
+    var zmin = min_p.y;
+    var zmax = max_p.y;
+    
+    canvas.save();
+    canvas.strokeStyle = color;
+    canvas.beginPath();
+    var lw = canvas.lineWidth;
+    canvas.lineWidth = 0.25;
+    canvas.arc(center_p.x, center_p.y, radius, 0, Math.PI * 2);
+    canvas.stroke();
+    canvas.lineWidth = lw;
+    canvas.clip();
+    
+    if(canvas.getScale() >= 1.0){
+      var line = new ross.drawing.LineSegment(0, zmin, 0, zmax);
+      for(var x = xmin; x <= xmax; ++x) {
+        line.p1.x = line.p2.x = x;
+        line.draw(canvas, color);
+      }
+      line.p1.x = xmin;
+      line.p2.x = xmax;
+      for(var z = zmin; z <= zmax; ++z) {
+        line.p1.y = line.p2.y = z;
+        line.draw(canvas, color);
+      }
+    } else {
+      canvas.fillStyle = color;
+      canvas.globalAlpha = 0.5;
+      canvas.fill();
+    }
+    canvas.restore();
+  }
+  
+  function OpDrawPoint(x, z, color, handle){
+    this.point = new ross.drawing.Point(x, z);
+    this.color = color;
+    this.handle = handle;
+  }
+  OpDrawPoint.prototype = {
+    exec(){
+      this.point.draw(canvas, this.color, 50);
+      
+      if(canvas.getScale() >= 0.1) {
+        canvas.save();
+        canvas.globalAlpha = 0.33;
+        drawBlockGridCircle(this.point, 12, this.color);
+        canvas.globalAlpha = 1;
+        canvas.lineWidth = 2;
+        drawSingleBlock(this.point, this.color);
+        canvas.restore();
+        
+        if(this.handle && canvas.getScale() >= 0.2) {
+          canvas.save();
+          canvas.fillStyle = this.color;
+          canvas.font = '16px sans-serif';
+          canvas.textAlign = 'center';
+          canvas.fillText(this.handle, this.point.x, this.point.y - 75);
+          canvas.restore()
+        }
+      }
+      
+      var rad = this.point.distanceTo({x:0, y:0});
+      
+      if(rad < stronghold_rings[stronghold_rings.length-1][1]){
+        for(var i = 0; i < stronghold_rings.length; ++ i) {
+          var ring = stronghold_rings[i];
+          if(rad > ring[0] - 20 && rad < ring[1] + 20){
+            var start = this.point.vectorFrom({x:0, y:0}).angleDeg;
+            var end = start + 359;
+            var stride = 360 / ring[2];
+            var line = new ross.drawing.LineSegment(ring[0], 0, ring[1], 0);
+            for(var j = 0; j < ring[2]; ++j) {
+              canvas.save();
+              canvas.globalAlpha = 0.15;
+              canvas.rotate( ross.drawing.radians(start + j * stride) );
+              line.draw(canvas, this.color);
+              canvas.restore();
+            }
+            break;
+          }
+        }
+      }
+    }
+  };
+  
+  function OpDrawRay(x, z, facing, color, handle){
+    this.ray = new ross.drawing.Ray(x, z, ross.drawing.radians(90 + facing));
+    this.dot = new ross.drawing.Arc(x, z, 0.2, 0, Math.PI * 2);
+    this.ring = new ross.drawing.Arc(x, z, 4, 0, Math.PI * 2);
+    this.color = color;
+    this.handle = handle;
+  }
+  OpDrawRay.prototype = {
+    _draw_cone(angle, alpha, cone_dist){
+      var na = new ross.drawing.Ray(this.ray);
+      var nb = new ross.drawing.Ray(this.ray);
+    
+      na.rotate(ross.drawing.radians(-angle/2));
+      nb.rotate(ross.drawing.radians(angle/2));
+      
+      cone_dist = cone_dist || 100000;
+      var cone = [
+        na.p1,
+        na.pointAtDistance(cone_dist),
+        nb.pointAtDistance(cone_dist)
+      ];
+      
+      canvas.save();
+      canvas.fillStyle = this.color;
+            
+      canvas.globalAlpha = alpha || 0.1;
+      
+      canvas.beginPath();
+      canvas.moveTo(cone[0].x, cone[0].y);
+      canvas.lineTo(cone[1].x, cone[1].y);
+      canvas.lineTo(cone[2].x, cone[2].y);
+      canvas.closePath();
+      canvas.fill();
+      canvas.beginPath();
+      canvas.restore();
+    },
+    exec(){
+      canvas.save();
+      canvas.lineWidth = 2;
+      canvas.globalAlpha = 0.2;
+      this.ray.draw(canvas, this.color, LONG_RAY_LENGTH);
+      //this.ring.draw(canvas, this.color);
+      
+      canvas.globalAlpha = 0.33;
+      drawBlockGridCircle(this.dot.p1, 4, this.color);
+      canvas.globalAlpha = 1.0;
+      canvas.beginPath();
+      canvas.lineWidth = 0.5;
+      canvas.fillStyle = this.color;
+      this.dot.drawPath(canvas);
+      canvas.fill();
+      
+      canvas.lineWidth = 2;
+      drawSingleBlock(this.ray.p1, this.color);
+      canvas.restore();
+      /*this._draw_cone(3, 0.05,  5000);
+      this._draw_cone(2, 0.075, 10000);
+      this._draw_cone(1, 0.10, 25000);
+      this._draw_cone(0.4, 0.25, 50000);*/
+      this._draw_cone(3, 0.05,  20000);
+      this._draw_cone(2, 0.075, 10000);
+      this._draw_cone(1, 0.10, 5000);
+      this._draw_cone(0.4, 0.25, 1000);
+    }
+  };
+  var draw = function(){
+    canvas.clear('#fcfcfc')
+    drawStrongholdRings();
+    drawAxis();
 
-		for(var i = 0; i < user_ops.length; ++ i) {
-			user_ops[i].exec();
-		}
-	};
-	$(function(){
-	  var saved_input = getFromLocalStorage('trig_input');
-		if(saved_input) $('#trig_input').val(saved_input);
-		canvas = ross.drawing.canvas_helpers.initCanvas('#board', draw, {
-		  default_scale: 0.1,
-		  flip_y: false,
-			mouse_zoom_options: {
-				scale_factor: 1.05,
-				min_scale: 0.001,
-				max_scale: 128
-			}
-		});
-		
-		$('#readme_link').click(function(){
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Feature',
-				eventAction: 'View Readme'
-			});
-		});
-		$('#web_color_link').click(function(){
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Feature',
-				eventAction: 'View Web Colors'
-			});
-		});
-		$('#upvote_touch a').click(function(){
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Feature',
-				eventAction: 'Upvote Touch Issue',
-				eventValue: 1
-			});
-		});
-		$('#reset_view').click(function(){
-		  canvas.resetTransforms(true);
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Map Action',
-				eventAction: 'Reset View'
-			});
-		});
-		
-		
-		
-		function numfmt(v,hi_perc){
-			var s = '';
-			if(v < 0) {
-				v = -v;
-				s = '-';
-			}
-			s += (v|0);
-			if(hi_perc){
-				var k = (v * 10) % 10 |0;
-				s += '.' + k;
-			}
-			return s;
-		}
-			
-		canvas.scale_changed_event.subscribe({}, function(scale){
-			putToLocalStorage('view_transform', canvas.getTransform());
-			var s = '';
-			//console.log(scale, Math.abs(scale*10+.5|0));
-			if(Math.abs(scale*10+.5|0) == 10) {
-				s = '1:1';
-			} else if(scale < 1) {
-				//s = numfmt(scale, 1) + 'x';
-				s = '1 / ' + ((1/scale*10+.5|0)/10);
-			} else {
-				//s = '1/' + numfmt(1/scale, 1) + 'x';
-				s = ((scale*10+.5|0)/10) + 'x';
-			}
-			$('#zoom').text(s);
-		});
-		// TODO: replace this with dragstop
-		canvas.mouseup_event.subscribe({}, function(p, e){
-			putToLocalStorage('view_transform', canvas.getTransform());
-		});
-		canvas.mousemove_event.subscribe({}, function(p, e){
-		  var hi_perc = canvas.getScale() > 5;
-		  var f = numfmt;
-			$('#overworld_pos').text(f(p.x,hi_perc) + ', ' + f(p.y,hi_perc));
-			$('#nether_pos').text(f(p.x/8,hi_perc) + ', ' + f(p.y/8,hi_perc));
-		});
-		canvas.mousedblclick_event.subscribe({}, function(p, e){
-		  let world;
-		  if( e.altKey ) {
-			  world = 'Nether';
-				var loc = (p.x/8|0) + ' ~ ' + (p.y/8|0) + ' N';
-			} else {
-			  world = 'Overworld';
-				var loc = (p.x|0) + ' ~ ' + (p.y|0);
-			}
-			putToClipboard(loc);
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Clipboard',
-				eventAction: 'Copy ' + world + ' Coords'
-			});
-			//console.log(loc);
-		});
-		
-		
-		var saved_transform = getFromLocalStorage('view_transform');
-		if(saved_transform)
-		  canvas.setTransform(saved_transform);
-		draw();
-		canvas.scale_changed_event.trigger(canvas.getScale());
-		
-		var first_draw = true;
-		$('#trig_input').keyup(function(){
-		  var last_ops = JSON.stringify(user_ops);
-		  user_ops = [];
-			var input_text = $(this).val();
-			putToLocalStorage('trig_input', input_text);
-			var m;
-			var active_color = 'gray';
-			// var lines = input_text.split(/\s*$\s*/m);
-			var lines = input_text.split(/$/m);
-			var handle = null;
-			
-			for(var i = 0; i < lines.length; ++ i) {
-				var line = lines[i].trim();
-				var tokens = line.split(/\s+/);
-				var dimension = 'overworld';
-				var dimension_scale = 1;
-				
-			  // /execute in overworld run tp @s 5998.44 11.00 -4644.54 550.07 90
-				if(tokens[0] == '/execute' && tokens[3] == 'run'){
-					dimension = tokens[2];
-					tokens = tokens.slice(4);
-					tokens[0] = '/' + tokens[0];
-				}
-				
-				if(dimension == 'the_nether')
-				  dimension_scale = 8;
-				
-				
-				function isNumeric(i){
-					return !!float_pattern.exec(tokens[i]);
-				}
-				if(!line){
-					handle = null;
-				} else if(line.startsWith('--')){
-				  // comment
-				} else if(line.startsWith('!-')){
-				  // handle
-					handle = line.substr(2).trim();
-				} else if(line[0] == '#') {
-				  active_color = line.substr(1).trim() || 'gray';
-				} else if(tokens[0] == '/tp') {
-  				if(tokens.length == 7) {
-						var words = {
-							x: parseFloat(tokens[2]) * dimension_scale,
-							y: parseFloat(tokens[3]),
-							z: parseFloat(tokens[4]) * dimension_scale,
-							f: parseFloat(tokens[5]),
-							t: parseFloat(tokens[6]),
-						};
-						if(words.t >= 89){  // looking down
-							user_ops.push(new OpDrawPoint(
-								words.x,
-								words.z,
-								active_color,
-								handle
-							));
-						} else {
-							user_ops.push(new OpDrawRay(
-								words.x,
-								words.z,
-								words.f,
-								active_color,
-								handle
-							));
-						}
-					} else if(tokens.length >= 4) {
-					  let kk = isNumeric(1) ? 0 : 1;
-						var words = {
-							x: parseFloat(tokens[1+kk]) * dimension_scale,
-							y: (isNumeric(+kk) ? parseFloat(tokens[2+kk]) : null),
-							z: parseFloat(tokens[3+kk]) * dimension_scale,
-						};
-						user_ops.push(new OpDrawPoint(
-							words.x,
-							words.z,
-							active_color,
-								handle
-						));
-					} else {
-						console.log(tokens);
-					}
-				} else {
-					if(tokens.length == 2) {
-					  if(isNumeric(0) && isNumeric(1)) {
-							user_ops.push(new OpDrawPoint(
-								parseFloat(tokens[0]),
-								parseFloat(tokens[1]),
-								active_color,
-								handle
-							));
-						}
-					} else if(tokens.length == 3 || tokens.length == 4) {
-						if(tokens[3] == 'N' || tokens[3] == 'n'){
-							dimension == 'the_nether';
-							dimension_scale = 8;
-						}
-						if(tokens[1] == '~' && isNumeric(0) && isNumeric(2)){
-							user_ops.push(new OpDrawPoint(
-								parseFloat(tokens[0]) * dimension_scale,
-								parseFloat(tokens[2]) * dimension_scale,
-								active_color,
-								handle
-							));
-						} else if(isNumeric(0) && isNumeric(1) && isNumeric(2)) {
-							user_ops.push(new OpDrawRay(
-								parseFloat(tokens[0]) * dimension_scale,
-								parseFloat(tokens[1]) * dimension_scale,
-								parseFloat(tokens[2]),
-								active_color,
-								handle
-							));
-						}
-					}
-				}
-			}
-			canvas.redraw();
-			if(!first_draw){
-				var this_ops = JSON.stringify(user_ops);
-				if(last_ops != this_ops){
-					ga('send', {
-						hitType: 'event',
-						eventCategory: 'User Input',
-						eventAction: 'Changed',
-						eventValue: user_ops.length
-					});
-				}
-			} else {
-				first_draw = false;
-			}
-		}).keyup();
-	});
-	
+    for(var i = 0; i < user_ops.length; ++ i) {
+      user_ops[i].exec();
+    }
+  };
+  $(function(){
+    var saved_input = getFromLocalStorage('trig_input');
+    if(saved_input) $('#trig_input').val(saved_input);
+    canvas = ross.drawing.canvas_helpers.initCanvas('#board', draw, {
+      default_scale: 0.1,
+      flip_y: false,
+      mouse_zoom_options: {
+        scale_factor: 1.05,
+        min_scale: 0.001,
+        max_scale: 128
+      }
+    });
+    
+    $('#readme_link').click(function(){
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Feature',
+        eventAction: 'View Readme'
+      });
+    });
+    $('#web_color_link').click(function(){
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Feature',
+        eventAction: 'View Web Colors'
+      });
+    });
+    $('#upvote_touch a').click(function(){
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Feature',
+        eventAction: 'Upvote Touch Issue',
+        eventValue: 1
+      });
+    });
+    $('#reset_view').click(function(){
+      canvas.resetTransforms(true);
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Map Action',
+        eventAction: 'Reset View'
+      });
+    });
+    
+    
+    
+    function numfmt(v,hi_perc){
+      var s = '';
+      if(v < 0) {
+        v = -v;
+        s = '-';
+      }
+      s += (v|0);
+      if(hi_perc){
+        var k = (v * 10) % 10 |0;
+        s += '.' + k;
+      }
+      return s;
+    }
+      
+    canvas.scale_changed_event.subscribe({}, function(scale){
+      putToLocalStorage('view_transform', canvas.getTransform());
+      var s = '';
+      //console.log(scale, Math.abs(scale*10+.5|0));
+      if(Math.abs(scale*10+.5|0) == 10) {
+        s = '1:1';
+      } else if(scale < 1) {
+        //s = numfmt(scale, 1) + 'x';
+        s = '1 / ' + ((1/scale*10+.5|0)/10);
+      } else {
+        //s = '1/' + numfmt(1/scale, 1) + 'x';
+        s = ((scale*10+.5|0)/10) + 'x';
+      }
+      $('#zoom').text(s);
+    });
+    // TODO: replace this with dragstop
+    canvas.mouseup_event.subscribe({}, function(p, e){
+      putToLocalStorage('view_transform', canvas.getTransform());
+    });
+    canvas.mousemove_event.subscribe({}, function(p, e){
+      var hi_perc = canvas.getScale() > 5;
+      var f = numfmt;
+      $('#overworld_pos').text(f(p.x,hi_perc) + ', ' + f(p.y,hi_perc));
+      $('#nether_pos').text(f(p.x/8,hi_perc) + ', ' + f(p.y/8,hi_perc));
+    });
+    canvas.mousedblclick_event.subscribe({}, function(p, e){
+      let world;
+      if( e.altKey ) {
+        world = 'Nether';
+        var loc = (p.x/8|0) + ' ~ ' + (p.y/8|0) + ' N';
+      } else {
+        world = 'Overworld';
+        var loc = (p.x|0) + ' ~ ' + (p.y|0);
+      }
+      putToClipboard(loc);
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Clipboard',
+        eventAction: 'Copy ' + world + ' Coords'
+      });
+      //console.log(loc);
+    });
+    
+    
+    var saved_transform = getFromLocalStorage('view_transform');
+    if(saved_transform)
+      canvas.setTransform(saved_transform);
+    draw();
+    canvas.scale_changed_event.trigger(canvas.getScale());
+    
+    var first_draw = true;
+    $('#trig_input').keyup(function(){
+      var last_ops = JSON.stringify(user_ops);
+      user_ops = [];
+      var input_text = $(this).val();
+      putToLocalStorage('trig_input', input_text);
+      var m;
+      var active_color = 'gray';
+      // var lines = input_text.split(/\s*$\s*/m);
+      var lines = input_text.split(/$/m);
+      var handle = null;
+      
+      for(var i = 0; i < lines.length; ++ i) {
+        var line = lines[i].trim();
+        var tokens = line.split(/\s+/);
+        var dimension = 'overworld';
+        var dimension_scale = 1;
+        
+        // /execute in overworld run tp @s 5998.44 11.00 -4644.54 550.07 90
+        if(tokens[0] == '/execute' && tokens[3] == 'run'){
+          dimension = tokens[2];
+          tokens = tokens.slice(4);
+          tokens[0] = '/' + tokens[0];
+        }
+        
+        if(dimension == 'the_nether')
+          dimension_scale = 8;
+        
+        
+        function isNumeric(i){
+          return !!float_pattern.exec(tokens[i]);
+        }
+        if(!line){
+          handle = null;
+        } else if(line.startsWith('--')){
+          // comment
+        } else if(line.startsWith('!-')){
+          // handle
+          handle = line.substr(2).trim();
+        } else if(line[0] == '#') {
+          active_color = line.substr(1).trim() || 'gray';
+        } else if(tokens[0] == '/tp') {
+          if(tokens.length == 7) {
+            var words = {
+              x: parseFloat(tokens[2]) * dimension_scale,
+              y: parseFloat(tokens[3]),
+              z: parseFloat(tokens[4]) * dimension_scale,
+              f: parseFloat(tokens[5]),
+              t: parseFloat(tokens[6]),
+            };
+            if(words.t >= 89){  // looking down
+              user_ops.push(new OpDrawPoint(
+                words.x,
+                words.z,
+                active_color,
+                handle
+              ));
+            } else {
+              user_ops.push(new OpDrawRay(
+                words.x,
+                words.z,
+                words.f,
+                active_color,
+                handle
+              ));
+            }
+          } else if(tokens.length >= 4) {
+            let kk = isNumeric(1) ? 0 : 1;
+            var words = {
+              x: parseFloat(tokens[1+kk]) * dimension_scale,
+              y: (isNumeric(+kk) ? parseFloat(tokens[2+kk]) : null),
+              z: parseFloat(tokens[3+kk]) * dimension_scale,
+            };
+            user_ops.push(new OpDrawPoint(
+              words.x,
+              words.z,
+              active_color,
+                handle
+            ));
+          } else {
+            console.log(tokens);
+          }
+        } else {
+          if(tokens.length == 2) {
+            if(isNumeric(0) && isNumeric(1)) {
+              user_ops.push(new OpDrawPoint(
+                parseFloat(tokens[0]),
+                parseFloat(tokens[1]),
+                active_color,
+                handle
+              ));
+            }
+          } else if(tokens.length == 3 || tokens.length == 4) {
+            if(tokens[3] == 'N' || tokens[3] == 'n'){
+              dimension == 'the_nether';
+              dimension_scale = 8;
+            }
+            if(tokens[1] == '~' && isNumeric(0) && isNumeric(2)){
+              user_ops.push(new OpDrawPoint(
+                parseFloat(tokens[0]) * dimension_scale,
+                parseFloat(tokens[2]) * dimension_scale,
+                active_color,
+                handle
+              ));
+            } else if(isNumeric(0) && isNumeric(1) && isNumeric(2)) {
+              user_ops.push(new OpDrawRay(
+                parseFloat(tokens[0]) * dimension_scale,
+                parseFloat(tokens[1]) * dimension_scale,
+                parseFloat(tokens[2]),
+                active_color,
+                handle
+              ));
+            }
+          }
+        }
+      }
+      canvas.redraw();
+      if(!first_draw){
+        var this_ops = JSON.stringify(user_ops);
+        if(last_ops != this_ops){
+          ga('send', {
+            hitType: 'event',
+            eventCategory: 'User Input',
+            eventAction: 'Changed',
+            eventValue: user_ops.length
+          });
+        }
+      } else {
+        first_draw = false;
+      }
+    }).keyup();
+  });
+  
 
 </script>
 </body>
