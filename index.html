@@ -39,17 +39,32 @@
     body{
       display: grid;
       grid-template-columns: auto 300px;
-      color: #333;
       font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    }
+    body.light{
+      color: #333;
+    }
+    body.dark{
+      color: #DDD;
     }
     
     #rightbar{
-      background-color: #f0f0f0;
       padding: 5px;
-      border-left: 1px solid lightgray;
-      box-shadow: -1px 0 2px #0002;
       position: relative;
     }
+    
+    body.light #rightbar{
+      background-color: #f0f0f0;
+      border-left: 1px solid lightgray;
+      box-shadow: -1px 0 2px #0002;
+    }
+    
+    body.dark #rightbar{
+      background-color: #333;
+      border-left: 1px solid darkgray;
+      box-shadow: -1px 0 2px #FFF2;
+    }
+    
     
     #rightbar label{
       font-weight:bold;
@@ -58,7 +73,7 @@
     #rightbar .input-caption{
       font-size: 0.8em;
     }
-    #rightbar a{
+    #web_color_link{
       font-size: 0.8em;
     }
     
@@ -111,13 +126,25 @@
       overflow-y: scroll;
     }
     
+    body.dark #trig_input{
+      background-color: #404040;
+      color: antiquewhite;
+    }
+    
     .pos{
       padding: .25em .5em;
-      background-color: floralwhite;
       border-radius: 1em;
-      box-shadow: 0 1px 2px #0003;
       display:inline-block;
+    }
+    body.light .pos{
+      background-color: floralwhite;
+      box-shadow: 0 1px 2px #0003;
       color: #795548;
+    }
+    body.dark .pos{
+      background-color: #404040;
+      box-shadow: 0 1px 2px #fff3;
+      color: antiquewhite;
     }
     
     .pos label{
@@ -125,7 +152,12 @@
       width: 100%;
       display: inline-block;
       font-size: .7em;
+    }
+    body.light .pos label{
       border-bottom: 1px solid #0002;
+    }
+    body.dark .pos label{
+      border-bottom: 1px solid #FFF2;
     }
     
     .pos .coords{
@@ -137,28 +169,90 @@
     }
     
     #upvote_touch{
-      font-size: 0.7em;
+      font-size: 0.8em;
     }
 
-    #reset_view{
-      background: linear-gradient(#d8d8d8, #bfbfbf 42%, #d8d8d8 75%);
+    .button{
       font-size: .8em;
-      color: #fefefe;
       padding: 0 .5em;
       border-radius: .5em;
-      text-shadow: 0 1px 2px black;
-      box-shadow: inset 0 2px 2px #999;
       cursor: pointer;
-      float: right;
       margin: .2em;
     }
 
-    #reset_view:hover{
+    #reset_view, #swap_theme{
+      float: right;
+    }
+    
+    body.light .button{
+      background: linear-gradient(#d8d8d8, #bfbfbf 42%, #d8d8d8 75%);
+      color: #fefefe;
+      text-shadow: 0 1px 2px black;
+      box-shadow: inset 0 2px 2px #999;
+    }
+    body.dark .button{
+      background: linear-gradient(#3e3e3e, #3a3a3a 42%, #3c3c3c 75%);
+      color: #b3b3b3;
+      text-shadow: 0 1px 2px black;
+      box-shadow: inset 0 2px 2px #999;
+      margin-top: 5px;
+    }
+
+    body.light .button:hover{
       box-shadow: inset 0 2px 2px white, inset 0 -2.5px 2px white;
+    }
+    body.dark .button:hover{
+      box-shadow: inset 0 2px 2px black, inset 0 -2.5px 2px black;
+    }
+    
+    body.dark a {
+      color: #c0dfba;
     }
   </style>
 </head>
 <body>
+<script>
+  const __LS_cache = {};
+  function putToClipboard(data){
+    $('#clipboard_buffer').text(data).select();
+    document.execCommand("copy");
+  }
+  function putToLocalStorage(key, data){
+    var s = JSON.stringify(data);
+    if(s != __LS_cache[key]) {
+      localStorage.setItem(key, s);
+      __LS_cache[key] = s;
+      //console.log('stored', key);
+    }
+  }
+  function getFromLocalStorage(key, default_value){
+    var s = localStorage.getItem(key);
+    if(!s) return default_value;
+    return JSON.parse(s);
+  }
+  
+  const themes = {
+    dark: {
+      name: 'dark',
+      background: '#282828',
+      stronghold_rings: '#cffccb20',
+      axis_color: '#faebd733',
+      tick_a_color: '#6663',
+      tick_b_color: '#8883'
+    },
+    light: {
+      name: 'light',
+      background: '#fcfcfc',
+      stronghold_rings: '#8fbc8b20',
+      axis_color: '#80000022',
+      tick_a_color: '#00000008',
+      tick_b_color: '#00008010'
+    }
+  };
+  
+  var active_theme = themes[getFromLocalStorage('theme', 'dark')];
+  document.body.classList.add(active_theme.name);
+</script>
 <div class='canvas-container'>
   <canvas id='board'></canvas>
   <div class='canvas-overlay'>
@@ -190,7 +284,10 @@
     </div>
     <div>
       <textarea id='trig_input'>
--- comments start with two dashes
+-- Comments start with two dashes.
+-- Double click the map to copy coords.
+-- ALT + double click to copy NETHER coords.
+-- Then paste those coords here to mark the spot.
 #SteelBlue
 7554 -2459 146.8
 7622 -2591 142
@@ -199,13 +296,16 @@
 #Blue
 6564 ~ -3947
 
+-- these are were pasted (ctrl+v) after copying with F3+C in game
 #DarkOrchid
 /execute in overworld run tp @s -8839.15 69.00 -4709.39 115.29 -29.79
 /execute in overworld run tp @s -9237.95 90.00 -5091.29 -1334.01 -31.06
 
-#Magenta
--1284 ~ -673 N
-    
+#MediumSpringGreen
+535 1754 -21.7
+683 1696 -3.2
+89 ~ 275 N
+
 -- More Sample Colors
 #SteelBlue
 #Blue
@@ -216,37 +316,20 @@
 #DeepPink
 #SlateBlue
 #Lime
+-- or you can just use RGB+Alpha
 #rgba(255, 0, 127, 0.5)</textarea>
     </div>
     <div>
       <a id='web_color_link' href='https://en.wikipedia.org/wiki/Web_colors' target='_blank'>Web Colors</a>
-      <span id='reset_view'>Reset View</span>
+      <span id='reset_view' class='button'>Reset View</span>
+      <span id='swap_theme' class='button'>Swap Themes</span>
     </div>
   </div>
 </div>
 <script>
-
   const float_pattern = /^[-+]?(?:\d+(?:[.](?:\d*)?)?|[.]\d+)$/;
-  // Controls the length of the ray line (has no affect on ray-cones)
+  // Controls the length of the ray line (has no effect on ray-cones)
   var LONG_RAY_LENGTH = 25000;
-  function putToClipboard(data){
-    $('#clipboard_buffer').text(data).select();
-    document.execCommand("copy");
-  }
-  var __LS_cache = {};
-  function putToLocalStorage(key, data){
-    var s = JSON.stringify(data);
-    if(s != __LS_cache[key]) {
-      localStorage.setItem(key, s);
-      __LS_cache[key] = s;
-      //console.log('stored', key);
-    }
-  }
-  function getFromLocalStorage(key, default_value){
-    var s = localStorage.getItem(key);
-    if(!s) return default_value;
-    return JSON.parse(s);
-  }
   
   var canvas;
   var user_ops = [];
@@ -265,7 +348,7 @@
   
   function drawStrongholdRings(){
     canvas.save();
-    canvas.fillStyle = '#8fbc8b20';
+    canvas.fillStyle = active_theme.stronghold_rings;
     canvas.beginPath();
     for(var i = 0; i < stronghold_rings.length; ++ i) {
       var ring = stronghold_rings[i];
@@ -278,11 +361,8 @@
   
   function drawAxis(){
     const axis_reach = 50000;  // 2**10 * 32;
-    const axis_color = '#80000022';
     const tick_a_step = 100;  // 16;
     const tick_b_step = tick_a_step *10;  // * 32
-    const tick_a_color  = '#00000008';
-    const tick_b_color = '#00008010';
     const tick_a_weight = 0.5;
     const tick_b_weight = 1;
     
@@ -290,14 +370,14 @@
     var y_axis = new ross.drawing.LineSegment(0,-axis_reach,0,axis_reach);
     canvas.save();
     canvas.lineWidth = 2;
-    x_axis.draw(canvas, axis_color);
-    y_axis.draw(canvas, axis_color);
+    x_axis.draw(canvas, active_theme.axis_color);
+    y_axis.draw(canvas, active_theme.axis_color);
     
     if(canvas.getScale() > 1/90){
       var pxa, pxb, pya, pyb, col;
       let tick_step = canvas.getScale() > 0.02 ? tick_a_step : tick_b_step;
       for(var i = tick_step; i <= axis_reach; i += tick_step){
-        col = i % tick_b_step === 0 ? tick_b_color : tick_a_color;
+        col = i % tick_b_step === 0 ? active_theme.tick_b_color : active_theme.tick_a_color;
         canvas.lineWidth = i % tick_b_step === 0 ? tick_b_weight : tick_a_weight;
         pxa = new ross.drawing.LineSegment(i, -axis_reach, i, axis_reach);
         pxb = new ross.drawing.LineSegment(-i, -axis_reach, -i, axis_reach);
@@ -507,7 +587,7 @@
     }
   };
   var draw = function(){
-    canvas.clear('#fcfcfc')
+    canvas.clear(active_theme.background);
     drawStrongholdRings();
     drawAxis();
 
@@ -557,6 +637,25 @@
         eventCategory: 'Map Action',
         eventAction: 'Reset View'
       });
+    });
+    $('#swap_theme').click(function(){
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'Feature',
+        eventAction: 'Swap Theme'
+      });
+      let b = $('body');
+      if (active_theme.name === 'light') {
+        b.addClass('dark');
+        b.removeClass('light');
+        active_theme = themes.dark;
+      } else {
+        b.addClass('light');
+        b.removeClass('dark');
+        active_theme = themes.light;
+      }
+      putToLocalStorage('theme', active_theme.name);
+      draw();
     });
     
     
