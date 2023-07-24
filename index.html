@@ -748,6 +748,8 @@
           tokens = tokens.slice(4);
           tokens[0] = '/' + tokens[0];
         }
+        // Trim off anything like "minecraft:"
+        dimension = dimension.substr(dimension.lastIndexOf(":") + 1);
         
         if(dimension == 'the_nether')
           dimension_scale = 8;
