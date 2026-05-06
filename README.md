@@ -21,10 +21,18 @@ Get yourself some Eyes of Ender and give them a throw. Aim your cross hair at th
 Same as the instructions for 1.13+ except you will need to use the F3 screen and copy down the X, Z, and Facing values and enter them manually in the tool.
 ## Map
 ### Interacting with the Map
-Use mousewheel to zoom.
-Click and drag to Pan.
+**Desktop:** Use mousewheel to zoom. Click and drag to pan. Double click to copy coords to the clipboard. **Hold ALT** while double clicking to copy nether coords.
 
-Double click on the map to copy coords to the clipboard. **Hold ALT** while double  clicking to copy nether coords.
+**Touch (phones / tablets):** Drag with one finger to pan. Pinch with two fingers to zoom. Double-tap to copy coords to the clipboard. The input panel slides up from a handle at the bottom of the screen.
+
+## Local Development
+Because `index.html` loads its shared library from a sibling repo (`/common-lib/...`), local development needs both repos served from the same origin. From the parent directory containing `minecraft-stronghold-locator/` and `common-lib/`:
+
+```
+python -m http.server 8000
+```
+
+Then open http://localhost:8000/minecraft-stronghold-locator/ (adjust to whatever folder name you cloned this repo into).
 
 ### About the Rings on the Map
 Strongholds are generated in rings, each ring contains UP TO a certain number of strongholds which will be spaced evenly within that ring. By placing a ***POINT*** within a ring the other approximate stronghold locations in that ring will be indicated by faint lines.
