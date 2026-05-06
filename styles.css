@@ -52,6 +52,7 @@ body.dark #rightbar {
   min-height: 200px;
   position: relative;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
 }
 
@@ -73,6 +74,7 @@ body.dark #rightbar {
   position: absolute;
   bottom: 0;
   padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
   vertical-align: bottom;
   box-sizing: border-box;
   width: 100%;
@@ -231,5 +233,11 @@ body.dark #sidebar_toggle {
 
   .overlay-footer {
     padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
+
+  /* Hide the zoom bubble and float the nether bubble to the right so the
+     sidebar_toggle button doesn't overlap the coords. */
+  .overlay-footer .draw-scale { display: none; }
+  .overlay-footer .pos.nether { float: right; }
 }
