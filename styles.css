@@ -234,6 +234,14 @@ body.dark #sidebar_toggle {
   .overlay-footer {
     padding: 12px;
     padding-bottom: max(12px, env(safe-area-inset-bottom));
+    transition: bottom 0.25s ease, padding-bottom 0.25s ease;
+  }
+
+  /* When the bottom drawer is open, ride the top of it so the coord
+     bubbles stay visible above the inputs panel. */
+  body:has(#rightbar.open) .overlay-footer {
+    bottom: 60dvh;
+    padding-bottom: 20px;
   }
 
   /* Hide the zoom bubble and float the nether bubble to the right so the
