@@ -1,17 +1,32 @@
+:root {
+  --sidebar-w: 320px;
+  --drawer-h: 60dvh;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   display: block;
   border: 0;
   height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
 }
 
 body {
   display: grid;
-  grid-template-columns: auto 320px;
+  grid-template-columns: auto var(--sidebar-w);
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   -webkit-text-size-adjust: 100%;
+  transition: grid-template-columns 0.25s ease;
+}
+body.sidebar-collapsed {
+  grid-template-columns: 100% 0;
+}
+body.resizing,
+body.resizing * {
+  transition: none !important;
+  user-select: none;
 }
 
 body.light { color: #333; }
@@ -22,6 +37,7 @@ body.dark  { color: #DDD; }
   position: relative;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 body.light #rightbar {
@@ -42,9 +58,11 @@ body.dark #rightbar {
 #rightbar .inputs {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 100%;
+  overflow: hidden;
 }
 
 .canvas-container {
@@ -165,21 +183,24 @@ body.dark  .button:hover { box-shadow: inset 0 2px 2px black,  inset 0 -2.5px 2p
 
 body.dark a { color: #c0dfba; }
 
-/* Sidebar toggle is hidden on desktop. */
+/* ---------- Sidebar thumb tab (toggle) ---------- */
 #sidebar_toggle {
-  display: none;
   position: absolute;
-  top: 0;
-  left: -44px;
-  height: 44px;
-  width: 44px;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.5em 0 0 0.5em;
-  font-size: 18px;
-  font-weight: bold;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  top: 50%;
+  left: -28px;
+  width: 28px;
+  height: 72px;
+  margin-top: -36px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px 0 0 8px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 11;
+  -webkit-tap-highlight-color: transparent;
 }
 body.light #sidebar_toggle {
   background: #f0f0f0;
@@ -192,9 +213,43 @@ body.dark #sidebar_toggle {
   box-shadow: -1px 0 2px #FFF2;
 }
 
+/* Collapsed state: the rightbar shrinks to 0 width and the toggle (anchored
+   at left:-28px of #rightbar) ends up just inside the viewport edge. */
+
+/* ---------- Sidebar drag-resize handle ---------- */
+#sidebar_resize {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  cursor: ew-resize;
+  touch-action: none;
+  z-index: 10;
+}
+#sidebar_resize::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 36px;
+  margin: -18px 0 0 -1px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.25;
+}
+body.sidebar-collapsed #sidebar_resize {
+  display: none;
+}
+
 /* ---------- Mobile / narrow viewports ---------- */
 @media (max-width: 720px) {
   body {
+    grid-template-columns: 100%;
+    transition: none;  /* drawer is fixed-position; grid columns don't change */
+  }
+  body.sidebar-collapsed {
     grid-template-columns: 100%;
   }
 
@@ -205,11 +260,11 @@ body.dark #sidebar_toggle {
 
   #rightbar {
     position: fixed;
-    inset: auto 0 0 0;
-    height: 60vh;
-    height: 60dvh;
-    transform: translateY(calc(100% - 0px));
-    transition: transform 0.25s ease;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--drawer-h);
+    transition: bottom 0.25s ease;
     z-index: 10;
     border-left: none;
     border-top: 1px solid;
@@ -218,17 +273,50 @@ body.dark #sidebar_toggle {
   body.light #rightbar { border-top-color: lightgray; }
   body.dark  #rightbar { border-top-color: darkgray; }
 
-  #rightbar.open {
-    transform: translateY(0);
+  /* Slide off below the viewport without using transform — transform on the
+     parent would create a containing block that traps the position:fixed
+     toggle button. */
+  body.sidebar-collapsed #rightbar {
+    bottom: calc(-1 * var(--drawer-h) - 20px);
   }
 
+  /* Toggle becomes a horizontal handle on top of the drawer. */
   #sidebar_toggle {
-    display: inline-flex;
-    top: -44px;
+    top: -32px;
     left: 50%;
+    margin-top: 0;
     transform: translateX(-50%);
-    border-radius: 0.5em 0.5em 0 0;
-    width: 64px;
+    border-radius: 8px 8px 0 0;
+    width: 72px;
+    height: 32px;
+  }
+  body.sidebar-collapsed #sidebar_toggle {
+    position: fixed;
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom, 0));
+    left: 50%;
+    right: auto;
+    margin: 0;
+    transform: translateX(-50%);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* Resize handle becomes a top edge for vertical resize. */
+  #sidebar_resize {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 10px;
+    cursor: ns-resize;
+  }
+  #sidebar_resize::after {
+    top: 50%;
+    left: 50%;
+    width: 36px;
+    height: 2px;
+    margin: -1px 0 0 -18px;
   }
 
   .overlay-footer {
@@ -239,9 +327,9 @@ body.dark #sidebar_toggle {
 
   /* When the bottom drawer is open, ride the top of it so the coord
      bubbles stay visible above the inputs panel. */
-  body:has(#rightbar.open) .overlay-footer {
-    bottom: 60dvh;
-    padding-bottom: 20px;
+  body:not(.sidebar-collapsed) .overlay-footer {
+    bottom: var(--drawer-h);
+    padding-bottom: 12px;
   }
 
   /* Hide the zoom bubble and float the nether bubble to the right so the

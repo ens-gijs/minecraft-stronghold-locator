@@ -31,19 +31,100 @@ function numfmt(v, hi_perc){
   return s;
 }
 
-function setupSidebarToggle(){
+function setupSidebar(){
   const sidebar = $('#rightbar');
   const toggle = $('#sidebar_toggle');
-  if(!toggle || !sidebar) return;
+  const handle = $('#sidebar_resize');
+  if(!toggle || !sidebar || !handle) return;
 
-  // Restore previous state on narrow viewports.
+  const MIN_W = 240, MIN_H = 120, MAX_RATIO = 0.8;
+  // Always leave at least this much room for the canvas on desktop, otherwise
+  // the grid overflows (rightbar wins, buttons + textarea slide off-screen).
+  const MIN_CANVAS_W = 320;
   const isNarrow = () => window.matchMedia('(max-width: 720px)').matches;
-  const stored = getFromLocalStorage('sidebar_open');
-  if(isNarrow() && stored === true) sidebar.classList.add('open');
+  const root = document.documentElement;
+
+  function clamp(v, lo, hi){ return Math.min(Math.max(v, lo), Math.max(lo, hi)); }
+  function maxSidebarW(){
+    return Math.min(
+      Math.floor(window.innerWidth * MAX_RATIO),
+      window.innerWidth - MIN_CANVAS_W
+    );
+  }
 
   toggle.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    putToLocalStorage('sidebar_open', sidebar.classList.contains('open'));
+    const collapsed = document.body.classList.toggle('sidebar-collapsed');
+    putToLocalStorage('sidebar_collapsed', collapsed);
+  });
+
+  let drag = null;
+
+  handle.addEventListener('pointerdown', (e) => {
+    if(document.body.classList.contains('sidebar-collapsed')) return;
+    const rect = sidebar.getBoundingClientRect();
+    drag = {
+      id: e.pointerId,
+      narrow: isNarrow(),
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: rect.width,
+      startH: rect.height
+    };
+    document.body.classList.add('resizing');
+    handle.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  handle.addEventListener('pointermove', (e) => {
+    if(!drag || drag.id !== e.pointerId) return;
+    if(drag.narrow){
+      // Drag UP grows the drawer.
+      const dy = drag.startY - e.clientY;
+      const maxH = Math.floor(window.innerHeight * MAX_RATIO);
+      const h = clamp(drag.startH + dy, MIN_H, maxH);
+      root.style.setProperty('--drawer-h', h + 'px');
+    } else {
+      // Drag LEFT widens the sidebar.
+      const dx = drag.startX - e.clientX;
+      const w = clamp(drag.startW + dx, MIN_W, maxSidebarW());
+      root.style.setProperty('--sidebar-w', w + 'px');
+    }
+  });
+
+  function endDrag(e){
+    if(!drag || drag.id !== e.pointerId) return;
+    if(drag.narrow){
+      const h = parseFloat(root.style.getPropertyValue('--drawer-h'));
+      if(isFinite(h)) putToLocalStorage('drawer_h', h);
+    } else {
+      const w = parseFloat(root.style.getPropertyValue('--sidebar-w'));
+      if(isFinite(w)) putToLocalStorage('sidebar_w', w);
+    }
+    document.body.classList.remove('resizing');
+    try { handle.releasePointerCapture(e.pointerId); } catch(_){}
+    drag = null;
+  }
+  handle.addEventListener('pointerup', endDrag);
+  handle.addEventListener('pointercancel', endDrag);
+
+  // On viewport resize, only clamp if the stored size now exceeds the 80%
+  // bound (the user explicitly asked for sizes NOT to reflow otherwise).
+  window.addEventListener('resize', () => {
+    const cs = getComputedStyle(root);
+    const w = parseFloat(cs.getPropertyValue('--sidebar-w'));
+    const maxW = maxSidebarW();
+    if(isFinite(w) && w > maxW){
+      const newW = Math.max(MIN_W, maxW);
+      root.style.setProperty('--sidebar-w', newW + 'px');
+      putToLocalStorage('sidebar_w', newW);
+    }
+    const h = parseFloat(cs.getPropertyValue('--drawer-h'));
+    const maxH = Math.floor(window.innerHeight * MAX_RATIO);
+    if(isFinite(h) && h > maxH){
+      const newH = Math.max(MIN_H, maxH);
+      root.style.setProperty('--drawer-h', newH + 'px');
+      putToLocalStorage('drawer_h', newH);
+    }
   });
 }
 
@@ -67,7 +148,19 @@ function init(){
   $('#web_color_link')?.addEventListener('click', () => track('Feature', 'View Web Colors'));
 
   $('#reset_view')?.addEventListener('click', () => {
-    canvas.resetTransforms(true);
+    canvas.resetTransforms(false);
+    // On narrow viewports the canvas spans the full screen, but the bottom
+    // drawer (when open) covers part of it — shift the origin upward so the
+    // visible area's center lines up with world (0,0).
+    const narrow = window.matchMedia('(max-width: 720px)').matches;
+    const drawerOpen = !document.body.classList.contains('sidebar-collapsed');
+    if(narrow && drawerOpen){
+      const drawerHpx = $('#rightbar').offsetHeight;
+      const s = canvas.getScale() || 1;
+      canvas.translate(0, -drawerHpx / (2 * s));
+      canvas._syncTransforms();
+    }
+    canvas.redraw();
     track('Map Action', 'Reset View');
   });
 
@@ -77,7 +170,7 @@ function init(){
     draw();
   });
 
-  setupSidebarToggle();
+  setupSidebar();
 
   canvas.scale_changed_event.subscribe({}, (scale) => {
     putToLocalStorage('view_transform', canvas.getTransform());
