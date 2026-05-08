@@ -1,5 +1,5 @@
 # minecraft-stronghold-locator
-Triangulate your strongholds using Eye of Ender, F3+C (as of 1.13) and this easy to use web based tool.
+Triangulate your strongholds using Eye of Ender, <code>F3+C</code> (as of 1.13) and this easy to use web based tool.
 
 Open https://ens-gijs.github.io/minecraft-stronghold-locator/ to get started.
 All data entered is remembered by **your browser** for when you come back.
@@ -8,27 +8,61 @@ Your entries are never sent to, or stored by, any server.
 About the author: My IGN is \_Ross\_\_ I play mostly on vanilla servers, feel free to say hi if you see me.
 # Usage
 ## Instructions (Minecraft 1.13+)
-Get yourself some Eyes of Ender and give them a throw. Aim your cross hair at the eye as it floats in the sky and press C while holding F3 (F3+C). This uses a feature added in Minecraft 1.13 which will copy a teleport command to your clipboard. Paste the TP command into the web tool and move to a new location to throw another eye and repeat the process _(Tip: move roughly perpendicular (at a right angle) to the direction the eye traveled)_. Once you have two or more rays entered in the tool you can DOUBLE CLICK on the map (or anywhere you like for that matter). This will copy the map location you clicked to your clipboard _(Tip: if you hold ALT while double clicking the NETHER coords will be copied to your clipboard)_. It can sometimes be helpful to also paste this copied coord into the tool and the tool will draw a POINT for you. If you are a long ways from where the rays cross it can be helpful to first move to to a point 20-100 meters or so away from where the rays cross and roughly perpendicular to your existing rays. This will let you throw another eye and get a better estimate of where the Stronghold entrance is.
+### How to Triangulate a Stronghold
+* Get yourself some Eyes of Ender and give them a throw.
+* Aim your cross-hair at the eye as it floats in the sky and press C while holding F3 (<code>F3+C</code>).\
+  _This uses a feature added in Minecraft 1.13 which will copy a teleport command to your clipboard._
+* Paste the TP command into the web tool and move to a new location to throw another eye and repeat the process.\
+  _Tip: move roughly perpendicular (at a right angle) to the direction the eye traveled._
+* Once you have two or more rays entered into the tool you can DOUBLE-CLICK on the map (or anywhere you like for that matter).
+  This will copy the map location you clicked to your clipboard. _Tip: if you hold ALT while double-clicking the NETHER coords will be copied to your clipboard_.
 
 **To recap:**
 1. Throw an Eye of Ender
-2. Aim your cross hairs at the eye as it floats and press F3+C
+2. Aim your cross-hairs at the eye as it floats and press F3+C
 3. Paste the TP command into the web tool
 4. Move some ways away and repeat 1, 2, & 3
 5. Get close to where the rays cross and throw another eye and follow it to the Stronghold entrance.
 
-## Instructions (Minecraft 1.12.* and under)
-Same as the instructions for 1.13+ except you will need to use the F3 screen and copy down the X, Z, and Facing values and enter them manually in the tool.
-## Map
-### Interacting with the Map
-**Desktop:** Use mousewheel to zoom. Click and drag to pan. Double click to copy coords to the clipboard. **Hold ALT** while double clicking to copy nether coords.
+> [!TIP] If you are a long ways from where the rays cross it can be helpful to first move to to a point 20-100 meters
+> or so away from where the rays cross and roughly perpendicular to your existing rays. This will let you throw another
+> eye and get a better estimate of where the Stronghold entrance is.
 
-**Touch (phones / tablets):** Drag with one finger to pan. Pinch with two fingers to zoom. Double-tap to copy coords to the clipboard. The input panel slides up from a handle at the bottom of the screen.
+### To Drop a Marker
+* Look straight up or down.
+* Copy coords <code>F3+C</code>.
+* Pase coords into the tool and the tool will draw a POINT for you.
+* You can name the point by placing a line `!- Skelly Spanwer` above it.\
+  _All points following a `!-` line will share the same name, naming stops at the first blank line._
 
 ### About the Rings on the Map
 Strongholds are generated in rings, each ring contains UP TO a certain number of strongholds which will be spaced evenly within that ring. By placing a ***POINT*** within a ring the other approximate stronghold locations in that ring will be indicated by faint lines.
 
 You can use this to more quickly locate another stronghold if the one you found had no portal room.
+
+## Instructions (Minecraft 1.12.* and under)
+Same as the instructions for 1.13+ except you will need to use the F3 screen and copy down the X, Z, and Facing values and enter them manually in the tool.
+## Map
+### Interacting with the Map
+**Desktop:**
+* Use mousewheel to zoom.
+* Click and drag to pan.
+* Double click to copy coords to the clipboard.\
+  _Hold <code>ALT</code> while double-clicking to copy nether coords._
+
+**Touch (phones / tablets):**
+* Drag with one finger to pan.
+* Pinch with two fingers to zoom.
+* Double-tap to copy coords to the clipboard.
+* The input panel slides up from a handle at the bottom of the screen.
+
+### Inputs Panel
+The triangulation inputs live in a side panel (desktop) or a bottom drawer (phones / tablets). The panel can be collapsed to give the map more room, and resized to fit your workflow.
+
+- **Toggle (open / close):** click the small thumb tab on the edge or bottom of the panel.
+- **Resize:** drag the thin handle at the panel's inside edge.
+- **Persistence:** your collapsed/open state and chosen size are remembered across reloads. Sizes are kept as fixed pixel values and aren't rescaled when you resize the window — they're only clamped if a smaller window would push them past their bounds.
+- **Reset View:** centers the map on world `(0, 0)`.
 
 ## Entering Data
 
