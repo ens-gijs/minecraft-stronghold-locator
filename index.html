@@ -18,15 +18,41 @@
     gtag('config', 'G-60P9F6P9HH');
   </script>
 
-  <!-- Pre-paint theme class to avoid flash. -->
+  <!-- Pre-paint theme + sidebar layout to avoid flash. -->
   <script>
     (function(){
-      var saved;
-      try { saved = JSON.parse(localStorage.getItem('theme')); } catch(_){}
+      function read(key){
+        try { var s = localStorage.getItem(key); return s == null ? undefined : JSON.parse(s); }
+        catch(_){ return undefined; }
+      }
+      // Theme
+      var saved = read('theme');
       var name = (saved === 'light' || saved === 'dark')
         ? saved
         : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
       document.documentElement.setAttribute('data-theme', name);
+
+      // Sidebar size + collapsed state (clamp to current viewport on load).
+      var MIN_W = 240, MIN_H = 120, MAX_RATIO = 0.8, MIN_CANVAS_W = 320;
+      var w = Number(read('sidebar_w'));
+      if(!isFinite(w) || w <= 0) w = 320;
+      var maxW = Math.min(
+        Math.floor(window.innerWidth * MAX_RATIO),
+        window.innerWidth - MIN_CANVAS_W
+      );
+      w = Math.min(Math.max(w, MIN_W), Math.max(MIN_W, maxW));
+      document.documentElement.style.setProperty('--sidebar-w', w + 'px');
+
+      var h = Number(read('drawer_h'));
+      if(isFinite(h) && h > 0){
+        h = Math.min(Math.max(h, MIN_H), Math.max(MIN_H, Math.floor(window.innerHeight * MAX_RATIO)));
+        document.documentElement.style.setProperty('--drawer-h', h + 'px');
+      }
+
+      var collapsed = read('sidebar_collapsed');
+      var narrow = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+      if(collapsed === undefined) collapsed = narrow;
+      document.documentElement.setAttribute('data-sidebar-collapsed', collapsed ? '1' : '0');
     })();
   </script>
 
@@ -42,9 +68,13 @@
 
   <link rel="stylesheet" href="styles.css">
   <script>
-    // Apply data-theme as a body class once body exists.
+    // Promote pre-paint flags to body classes once body exists.
     document.addEventListener('DOMContentLoaded', function(){
-      document.body.classList.add(document.documentElement.getAttribute('data-theme'));
+      var html = document.documentElement;
+      document.body.classList.add(html.getAttribute('data-theme'));
+      if(html.getAttribute('data-sidebar-collapsed') === '1'){
+        document.body.classList.add('sidebar-collapsed');
+      }
     });
   </script>
 </head>
@@ -73,6 +103,7 @@
 </div>
 <div id="rightbar">
   <button id="sidebar_toggle" type="button" aria-label="Toggle sidebar">≡</button>
+  <div id="sidebar_resize" role="separator" aria-orientation="vertical" aria-label="Resize sidebar"></div>
   <div class="inputs">
     <div>
       <label for="trig_input">Triangulation Inputs</label><br>
